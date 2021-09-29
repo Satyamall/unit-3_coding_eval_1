@@ -15,6 +15,109 @@
         <input type="number" placeholder="Quantity" id="quantity">
         <input type="submit" id="submit" placeholder="Submit">
     </form>
-    
+    <div id="pagination">
+
+    </div>
+    <script>
+        let currentPage = 1;
+        let limit = 5;
+        let data =[];
+
+        window.addEventListener("load", function(){
+            const form = document.getElementById("input-container");
+            form.addEventListener("submit", handleSubmit);
+            fetchPosts(currentPage,limit);
+
+            createPagination();
+
+            const pagination = document.getElementById("pagination");
+            pagination.addEventListener("click",handlePageChange);
+
+        })
+           
+        fetch("http://localhost:3001/products")
+        .then(function(response){
+            console.log(response)
+            return response.json()
+        })
+        .then(function(response){
+            console.log(response);
+            
+        })
+        .catch(function(err){
+
+        })
+
+        async function handlePageChange(){
+            try
+            {
+                const pageNumber = parseInt(event.target.name);
+                console.log(pageNumber);
+                currentPage = pageNumber;
+                fetchPosts(currentPage,limit);
+                createPagination()
+            }catch(e){
+
+            }
+        }
+
+        function createPagination(){
+            const div = document.getElementById("pagination");
+            div.innerHTML = null;
+            const prev = document.createElement("button");
+            prev.textContent = "Previous";
+            prev.name = currentPage-1;
+            if(currentPage===1)
+            {
+                prev.disabled=true;
+            }
+
+            const current = document.createElement("button");
+            current.textContent = "Current";
+            current.name= currentPage;
+
+            const next = document.createElement("button");
+            next.textContent = "Next";
+            next.name=currentPage+1;
+
+            div.append(prev,current,next);
+        }
+
+        function createPostCard(post){
+            const div = document.createElement("div");
+            div.className = "post-container";
+            const h3 = document.createElement("h3");
+            h3.textContent = post.title;
+
+            const p = document.createElement("p")
+            p.textContent = post.body;
+
+            div.append(h3,p);
+            return div;
+        }
+
+        
+        function getPosts(page,limit){
+            page = page || 1;
+            limit = limit || 5;
+            return fetch(`http://localhost:3000/products?_page=${page}&_limit=${limit}`)
+            .then(function(response){
+                return response.json()
+            })
+        }
+
+        async function fetchPosts(page,limit){
+            try{
+                //loading indicators
+                const results = await getPosts(page,limit);
+                data = results;
+                displayPosts(results, "results");
+            }
+            catch(e){
+
+            }
+        }
+        fetchPosts(currentPage,limit)
+    </script>
 </body>
 </html>
