@@ -1,13 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unit 3 - Coding I</title>
+    <style>
+         .post-container{
+            padding: 1rem;
+            margin-bottom: 1rem;
+            outline: 1px solid black;
+        }
+    </style>
 </head>
+
 <body>
-    <form>
+    <form id="form">
         <input type="number" placeholder="Id" id="productId">
         <input type="text" placeholder="Name of Products" id="productName">
         <input type="number" placeholder="Price" id="productPrice">
@@ -15,109 +24,165 @@
         <input type="number" placeholder="Quantity" id="quantity">
         <input type="submit" id="submit" placeholder="Submit">
     </form>
+    <div id="results">
+        
+    </div>
     <div id="pagination">
 
     </div>
     <script>
         let currentPage = 1;
         let limit = 5;
-        let data =[];
+        let data = [];
 
-        window.addEventListener("load", function(){
-            const form = document.getElementById("input-container");
+        window.addEventListener("load", function () {
+            const form = document.getElementById("form");
             form.addEventListener("submit", handleSubmit);
-            fetchPosts(currentPage,limit);
+            fetchPosts(currentPage, limit);
 
             createPagination();
 
             const pagination = document.getElementById("pagination");
-            pagination.addEventListener("click",handlePageChange);
+            pagination.addEventListener("click", handlePageChange);
 
         })
-           
+
         fetch("http://localhost:3001/products")
-        .then(function(response){
-            console.log(response)
-            return response.json()
-        })
-        .then(function(response){
-            console.log(response);
-            
-        })
-        .catch(function(err){
+            .then(function (response) {
+                console.log(response)
+                return response.json()
+            })
+            .then(function (response) {
+                console.log(response);
 
-        })
+            })
+            .catch(function (err) {
 
-        async function handlePageChange(){
-            try
-            {
+            })
+
+        async function handlePageChange() {
+            try {
                 const pageNumber = parseInt(event.target.name);
                 console.log(pageNumber);
                 currentPage = pageNumber;
-                fetchPosts(currentPage,limit);
+                fetchPosts(currentPage, limit);
                 createPagination()
-            }catch(e){
+            } catch (e) {
 
             }
         }
 
-        function createPagination(){
+        function createPagination() {
             const div = document.getElementById("pagination");
             div.innerHTML = null;
             const prev = document.createElement("button");
             prev.textContent = "Previous";
-            prev.name = currentPage-1;
-            if(currentPage===1)
-            {
-                prev.disabled=true;
+            prev.name = currentPage - 1;
+            if (currentPage === 1) {
+                prev.disabled = true;
             }
 
             const current = document.createElement("button");
             current.textContent = "Current";
-            current.name= currentPage;
+            current.name = currentPage;
 
             const next = document.createElement("button");
             next.textContent = "Next";
-            next.name=currentPage+1;
+            next.name = currentPage + 1;
 
-            div.append(prev,current,next);
+            div.append(prev, current, next);
         }
 
-        function createPostCard(post){
+
+        function displayPosts(data, targetId){
+            const target = document.getElementById(targetId);
+            target.innerHTML = null;
+            const div = document.createElement("div");
+            for(var i=0; i<data.length; i++){
+                const card = createPostCard(data[i]);
+                div.append(card);
+            }
+            target.append(div);
+        }
+
+        function createPostCard(post) {
             const div = document.createElement("div");
             div.className = "post-container";
             const h3 = document.createElement("h3");
-            h3.textContent = post.title;
+            h3.textContent = post.id;
+            const p1 = document.createElement("h3");
+            p1.textContent = post.name;
+            const p2 = document.createElement("h3");
+            p2.textContent = post.price;
+            const p3 = document.createElement("h3");
+            p3.textContent = post.currency;
+            const p4 = document.createElement("h3");
+            p4.textContent = post.quantity;
 
-            const p = document.createElement("p")
-            p.textContent = post.body;
-
-            div.append(h3,p);
+            div.append(h3,p1,p2,p3,p4);
             return div;
         }
 
-        
-        function getPosts(page,limit){
-            page = page || 1;
-            limit = limit || 5;
-            return fetch(`http://localhost:3000/products?_page=${page}&_limit=${limit}`)
+        function createPost(data){
+            //fetch(url, config)
+            //data = {title, body}
+            const config = {
+                method: "POST",
+                headers: {
+                    'Content-type':'application/json'
+                },
+                body: JSON.stringify(data)
+            }
+            return fetch("http://localhost:3000/posts",config)
             .then(function(response){
                 return response.json()
             })
         }
 
-        async function fetchPosts(page,limit){
-            try{
+        function getPosts(page, limit) {
+            page = page || 1;
+            limit = limit || 5;
+            return fetch(`http://localhost:3000/products?_page=${page}&_limit=${limit}`)
+                .then(function (response) {
+                    return response.json()
+                })
+        }
+
+        async function fetchPosts(page, limit) {
+            try {
                 //loading indicators
-                const results = await getPosts(page,limit);
+                const results = await getPosts(page, limit);
                 data = results;
                 displayPosts(results, "results");
             }
-            catch(e){
+            catch (e) {
 
             }
         }
-        fetchPosts(currentPage,limit)
+        fetchPosts(currentPage, limit)
+
+        async function handleSubmit() {
+            try {
+                event.preventDefault();
+                const form = document.getElementById("form");
+
+                const id = document.getElementById("productId").value;
+                const productName = document.getElementById("productName").value;
+                const productPrice = document.getElementById("productPrice").value;
+                const currency = document.getElementById("currency").value;
+                const quantity = document.getElementById("quantity").value;
+
+                const response = await createPost({id,productName,productPrice,currency,quantity});
+                await fetchPosts();
+
+                console.log(response);
+            }
+            catch (err) {
+
+            }
+
+        }
     </script>
 </body>
+
 </html>
