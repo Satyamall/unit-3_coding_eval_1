@@ -54,6 +54,7 @@
             })
             .then(function (response) {
                 console.log(response);
+                displayPosts(response)
 
             })
             .catch(function (err) {
@@ -94,8 +95,8 @@
         }
 
 
-        function displayPosts(data, targetId){
-            const target = document.getElementById(targetId);
+        function displayPosts(data){
+            const target = document.getElementById("results");
             target.innerHTML = null;
             const div = document.createElement("div");
             for(var i=0; i<data.length; i++){
@@ -109,15 +110,15 @@
             const div = document.createElement("div");
             div.className = "post-container";
             const h3 = document.createElement("h3");
-            h3.textContent = post.id;
+            h3.textContent ="Product Id: "+ post.id;
             const p1 = document.createElement("h3");
-            p1.textContent = post.name;
+            p1.textContent ="Product Name: "+ post.name;
             const p2 = document.createElement("h3");
-            p2.textContent = post.price;
+            p2.textContent ="Product Price: " +post.price;
             const p3 = document.createElement("h3");
-            p3.textContent = post.currency;
+            p3.textContent = "Currency: "+post.currency;
             const p4 = document.createElement("h3");
-            p4.textContent = post.quantity;
+            p4.textContent = "Product Quantity"+post.quantity;
 
             div.append(h3,p1,p2,p3,p4);
             return div;
